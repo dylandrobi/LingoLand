@@ -35,12 +35,13 @@ export default NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.uid;
+      // OLD: session.user.id = token.uid;
+      session.user.id = token.uid as string;
       if (token.uid) {
         const userInDb = await User.findById(token.uid);
         
         if (userInDb) {
-          session.user.fluentLanguages = userInDb.fluentLanguages;
+          session.user.fluentLanguage = userInDb.fluentLanguages;
           session.user.practiceLanguage = userInDb.practiceLanguage;
         }
       }

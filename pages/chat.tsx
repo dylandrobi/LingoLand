@@ -104,28 +104,28 @@ async function connectToAgoraRtm(
 export default function Home() {
   
   // Add a state to manage video enable/disable status
-    const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null);
-    const [remoteVideoTrack, setRemoteVideoTrack] = useState<IRemoteVideoTrack | null>(null);
-    const [isRemoteVideoEnabled, setIsRemoteVideoEnabled] = useState(true);
-    const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-    const [isMicEnabled, setIsMicEnabled] = useState(true);
-  // Add the microphoneTrackRef here
-    const cameraTrackRef = useRef<ICameraVideoTrack | null>(null); // This is the initialization
-    const microphoneTrackRef = useRef<IAudioTrack | null>(null);
-    const microphoneTrack = useRef<IAudioTrack>(); 
-    const [showNext, setShowNext] = useState(false);
-    const [showMainMenu, setShowMainMenu] = useState(false);
-    const [userId, setUserId] = useState("");
-    const [room, setRoom] = useState<Room | undefined>();
-    const [messages, setMessages] = useState<TMessage[]>([]);
-    const [input, setInput] = useState("");
-    const [themVideo, setThemVideo] = useState<IRemoteVideoTrack>();
+      const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null);
+        const [remoteVideoTrack, setRemoteVideoTrack] = useState<IRemoteVideoTrack | null>(null);
+        const [isRemoteVideoEnabled, setIsRemoteVideoEnabled] = useState(true);
+        const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+        const [isMicEnabled, setIsMicEnabled] = useState(true);
+      // Add the microphoneTrackRef here
+        const cameraTrackRef = useRef<ICameraVideoTrack | null>(null); // This is the initialization
+        const microphoneTrackRef = useRef<typeof IAudioTrack | null>(null);
+        const microphoneTrack = useRef<typeof IAudioTrack>(); 
+        const [showNext, setShowNext] = useState(false);
+        const [showMainMenu, setShowMainMenu] = useState(false);
+        const [userId, setUserId] = useState("");
+        const [room, setRoom] = useState<Room | undefined>();
+        const [messages, setMessages] = useState<TMessage[]>([]);
+        const [input, setInput] = useState("");
+      const [themVideo, setThemVideo] = useState<IRemoteVideoTrack>();
     const [myVideo, setMyVideo] = useState<ICameraVideoTrack>();
     const [themAudio, setThemAudio] = useState<IRemoteAudioTrack>();
     const channelRef = useRef<RtmChannel>();
     const rtcClientRef = useRef<IAgoraRTCClient>();
     const { data: session } = useSession();
-    const canChat = session?.user?.fluentLanguages && session?.user?.practiceLanguage &&
+    const canChat = session?.user?.fluentLanguage && session?.user?.practiceLanguage &&
         session.user.practiceLanguage !== '';
     const [userPreferences, setUserPreferences] = useState({
         fluentLanguages: {},
@@ -140,20 +140,19 @@ export default function Home() {
           // Leave the Agora RTC channel
           if (rtcClientRef.current) {
               rtcClientRef.current.leave();
-              rtcClientRef.current = null;
+              rtcClientRef.current = undefined;
           }
 
           // Stop the local video and audio tracks
           if (myVideo) {
-              myVideo.stop();
-              myVideo.close();
-              setMyVideo(null);
+            myVideo.stop();
+            myVideo.close();
+            setMyVideo(undefined);
           }
 
           if (themVideo) {
-              themVideo.stop();
-              themVideo.close();
-              setThemVideo(null);
+            themVideo.stop();
+            setThemVideo(undefined);
           }
 
           // Update room status to 'waiting' in the database
@@ -198,7 +197,7 @@ export default function Home() {
           setShowNext(true);
           setShowMainMenu(true);
       }
-  }, [room, userId]);
+  }, [room, userId, messages, myVideo, sendSystemMessage, themVideo]);
 
     useEffect(() => {
         const fetchPreferences = async () => {
@@ -253,18 +252,20 @@ export default function Home() {
       useEffect(() => {
         const channel = channelRef.current;
         if (channel) {
-            channel.on("ChannelMessage", (receivedMsg, senderId) => {
-                const message = JSON.parse(receivedMsg.text);
-    
-                // Handle system message for user leaving
-                if (message.type === "SYSTEM" && message.content === "USER_LEFT") {
-                    // Clear chat for all users
-                    setMessages([]);
-                } else if (message.type !== "SYSTEM") {
-                    // Handle regular chat messages
-                    // setMessages(prevMessages => [...prevMessages, { userId: senderId, message: message.message }]);
-                }
-            });
+          channel.on("ChannelMessage", (receivedMsg, senderId) => {
+            if (receivedMsg.text) {
+              const message = JSON.parse(receivedMsg.text);
+      
+              // Handle system message for user leaving
+              if (message.type === "SYSTEM" && message.content === "USER_LEFT") {
+                // Clear chat for all users
+                setMessages([]);
+              } else if (message.type !== "SYSTEM") {
+                // Handle regular chat messages
+                // setMessages(prevMessages => [...prevMessages, { userId: senderId, message: message.message }]);
+              }
+            }
+          });
         }
     
         return () => {
