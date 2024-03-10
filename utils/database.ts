@@ -15,7 +15,7 @@ export const connectToDB = async (): Promise<void> => {
       dbName: "share_prompt",
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    });
+    } as mongoose.ConnectOptions); // Add 'as mongoose.ConnectOptions' to specify the correct type
 
     isConnected = true;
     console.log('MongoDB connected');
