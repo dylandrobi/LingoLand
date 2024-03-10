@@ -810,7 +810,7 @@ if (room) {
                                     </p>
                                 ) : (
                                     <p>
-                                        You can't start chatting until you set your language preferences, click{' '}
+                                        You can&apos;t start chatting until you set your language preferences, click{' '}
                                         <Link href="/language-preferences" className={styles.boldUnderline}>here</Link>.
                                     </p>
                                 )}

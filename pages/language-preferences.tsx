@@ -292,7 +292,7 @@ const handlePracticeLanguageChange = (e) => {
             checked={partnerPreferenceOption === 'languageImPracticing'}
             onChange={() => setPartnerPreferenceOption('languageImPracticing')}
           />
-          Partner must practice language I'm practicing
+          Partner must practice language I&apos;m practicing
         </label>
       </div>
 
@@ -305,7 +305,7 @@ const handlePracticeLanguageChange = (e) => {
             checked={partnerPreferenceOption === 'any'}
             onChange={() => setPartnerPreferenceOption('any')}
           />
-          Partner can practice any language I'm fluent in
+          Partner can practice any language I&apos;m fluent in
         </label>
       </div>
 
