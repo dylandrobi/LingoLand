@@ -156,26 +156,26 @@ async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
               // Matching room found and updated
               res.status(200).json({
                   room: matchingRoom,
-                  rtcToken: getRtcToken(matchingRoom._id.toString(), userId.toString()),
-                  rtmToken: getRtmToken(userId.toString()),
+                  rtcToken: getRtcToken(matchingRoom._id.toString(), userId?.toString() ?? ""),
+                  rtmToken: getRtmToken(userId?.toString() ?? ""),
               });
           } else {
               // No matching room found, create a new one
-              const newRoom = await Room.create({
-                  status: "waiting",
-                  user1Preferences: {
-                      practiceLanguage: practiceLanguage,
-                      partnerLanguage: partnerLanguages,
-                  },
-                  // Assuming a mechanism to link the room to the user who created it
-                  user1: userId,
-              });
+            const newRoom = await Room.create({
+                status: "waiting",
+                user1Preferences: {
+                    practiceLanguage: practiceLanguage,
+                    partnerLanguage: partnerLanguages,
+                },
+                // Assuming a mechanism to link the room to the user who created it
+                user1: userId,
+            });
 
-              res.status(200).json({
-                  room: newRoom,
-                  rtcToken: getRtcToken(newRoom._id.toString(), userId.toString()),
-                  rtmToken: getRtmToken(userId.toString()),
-              });
+            res.status(200).json({
+                room: newRoom,
+                rtcToken: getRtcToken(newRoom._id.toString(), userId?.toString() ?? ""),
+                rtmToken: getRtmToken(userId?.toString() ?? ""),
+            });
           }
       } catch (error) {
           console.error("Error in matching or creating room:", error);
