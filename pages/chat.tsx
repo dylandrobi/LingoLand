@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from "../styles/Home.module.css";
 import { RtmChannel } from "agora-rtm-sdk";
 import {
@@ -133,6 +133,72 @@ export default function Home() {
         partnerLanguagePreference: '',
         partnerPreferenceOption: '',
     });
+
+    const handleStopChatting = useCallback(async () => {
+      if (room) {
+          
+          // Leave the Agora RTC channel
+          if (rtcClientRef.current) {
+              rtcClientRef.current.leave();
+              rtcClientRef.current = null;
+          }
+
+          // Stop the local video and audio tracks
+          if (myVideo) {
+              myVideo.stop();
+              myVideo.close();
+              setMyVideo(null);
+          }
+
+          if (themVideo) {
+              themVideo.stop();
+              themVideo.close();
+              setThemVideo(null);
+          }
+
+          // Update room status to 'waiting' in the database
+          // await setRoomToWaiting(room._id);
+          console.log("UserID being sentttt:", userId);
+          sendSystemMessage('USER_LEFT', {userId: userId});
+          await sendSystemMessage('USER_LEFT', {userId: userId});
+          try {
+              const response = await fetch(`/api/rooms/${[room._id]}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId }), // Sending the user ID of the leaving user
+                
+              });
+              if (!response.ok) {
+                throw new Error('Failed to update room status');
+              }
+              // Handle success
+              console.log("Successfully left the room");
+            } catch (error) {
+              console.error("Error leaving room:", error);
+            }
+          
+          // Reset the room and message state
+          // setRoom(undefined);
+          if (channelRef.current && userId) {
+              const systemMessage = JSON.stringify({
+                  type: "SYSTEM",
+                  content: "USER_LEFT",
+                  userId: userId
+              });
+              await channelRef.current.sendMessage({ text: systemMessage });
+          }
+          console.log("Clearing messages"); // Debugging
+          setMessages([]); // Clear messages
+          console.log("Messages after clearing:", messages); // This might still show old messages due to async state update
+          setRoom(undefined);
+
+          // Show 'Next' and 'Back to Main Menu' buttons
+          setShowNext(true);
+          setShowMainMenu(true);
+      }
+  }, [room, userId]);
 
     useEffect(() => {
         const fetchPreferences = async () => {
@@ -384,71 +450,71 @@ const toggleVideo = async () => {
       };
 
 
-    async function handleStopChatting() {
-        if (room) {
+    //   const handleStopChatting = useCallback(async () => {
+    //     if (room) {
             
-            // Leave the Agora RTC channel
-            if (rtcClientRef.current) {
-                rtcClientRef.current.leave();
-                rtcClientRef.current = null;
-            }
+    //         // Leave the Agora RTC channel
+    //         if (rtcClientRef.current) {
+    //             rtcClientRef.current.leave();
+    //             rtcClientRef.current = null;
+    //         }
 
-            // Stop the local video and audio tracks
-            if (myVideo) {
-                myVideo.stop();
-                myVideo.close();
-                setMyVideo(null);
-            }
+    //         // Stop the local video and audio tracks
+    //         if (myVideo) {
+    //             myVideo.stop();
+    //             myVideo.close();
+    //             setMyVideo(null);
+    //         }
 
-            if (themVideo) {
-                themVideo.stop();
-                themVideo.close();
-                setThemVideo(null);
-            }
+    //         if (themVideo) {
+    //             themVideo.stop();
+    //             themVideo.close();
+    //             setThemVideo(null);
+    //         }
 
-            // Update room status to 'waiting' in the database
-            // await setRoomToWaiting(room._id);
-            console.log("UserID being sentttt:", userId);
-            sendSystemMessage('USER_LEFT', {userId: userId});
-            await sendSystemMessage('USER_LEFT', {userId: userId});
-            try {
-                const response = await fetch(`/api/rooms/${[room._id]}`, {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ userId }), // Sending the user ID of the leaving user
+    //         // Update room status to 'waiting' in the database
+    //         // await setRoomToWaiting(room._id);
+    //         console.log("UserID being sentttt:", userId);
+    //         sendSystemMessage('USER_LEFT', {userId: userId});
+    //         await sendSystemMessage('USER_LEFT', {userId: userId});
+    //         try {
+    //             const response = await fetch(`/api/rooms/${[room._id]}`, {
+    //               method: 'PUT',
+    //               headers: {
+    //                 'Content-Type': 'application/json',
+    //               },
+    //               body: JSON.stringify({ userId }), // Sending the user ID of the leaving user
                   
-                });
-                if (!response.ok) {
-                  throw new Error('Failed to update room status');
-                }
-                // Handle success
-                console.log("Successfully left the room");
-              } catch (error) {
-                console.error("Error leaving room:", error);
-              }
+    //             });
+    //             if (!response.ok) {
+    //               throw new Error('Failed to update room status');
+    //             }
+    //             // Handle success
+    //             console.log("Successfully left the room");
+    //           } catch (error) {
+    //             console.error("Error leaving room:", error);
+    //           }
             
-            // Reset the room and message state
-            // setRoom(undefined);
-            if (channelRef.current && userId) {
-                const systemMessage = JSON.stringify({
-                    type: "SYSTEM",
-                    content: "USER_LEFT",
-                    userId: userId
-                });
-                await channelRef.current.sendMessage({ text: systemMessage });
-            }
-            console.log("Clearing messages"); // Debugging
-            setMessages([]); // Clear messages
-            console.log("Messages after clearing:", messages); // This might still show old messages due to async state update
-            setRoom(undefined);
+    //         // Reset the room and message state
+    //         // setRoom(undefined);
+    //         if (channelRef.current && userId) {
+    //             const systemMessage = JSON.stringify({
+    //                 type: "SYSTEM",
+    //                 content: "USER_LEFT",
+    //                 userId: userId
+    //             });
+    //             await channelRef.current.sendMessage({ text: systemMessage });
+    //         }
+    //         console.log("Clearing messages"); // Debugging
+    //         setMessages([]); // Clear messages
+    //         console.log("Messages after clearing:", messages); // This might still show old messages due to async state update
+    //         setRoom(undefined);
 
-            // Show 'Next' and 'Back to Main Menu' buttons
-            setShowNext(true);
-            setShowMainMenu(true);
-        }
-    }
+    //         // Show 'Next' and 'Back to Main Menu' buttons
+    //         setShowNext(true);
+    //         setShowMainMenu(true);
+    //     }
+    // }, [room, userId]);
 
     function onMessageReceived(message) {
         const parsedMessage = JSON.parse(message); // Assuming message is a JSON string
