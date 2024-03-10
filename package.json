@@ -14,7 +14,7 @@
     "@types/react-dom": "18.0.10",
     "agora-access-token": "^2.0.4",
     "agora-rtc-sdk": "^3.6.11",
-    "agora-rtc-sdk-ng": "^4.19.3",
+    "agora-rtc-sdk-ng": "^4.20.1",
     "agora-rtm-sdk": "^1.6.0-205",
     "bcrypt": "^5.1.1",
     "eslint": "8.30.0",

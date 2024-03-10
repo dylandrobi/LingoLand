@@ -1,16 +1,23 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from "../styles/Home.module.css";
+
 import { RtmChannel } from "agora-rtm-sdk";
-import {
-    ICameraVideoTrack,
-    IRemoteVideoTrack,
-    IAgoraRTCClient,
-    IRemoteAudioTrack,
+import AgoraRTC, {
+  IAgoraRTCClient,
+  ICameraVideoTrack,
+  IRemoteAudioTrack,
+  IRemoteVideoTrack,
+  IMicrophoneAudioTrack,
 } from "agora-rtc-sdk-ng";
+import IAudioTrack from "agora-rtc-sdk-ng"; // Import the missing IAudioTrack type
+import IAgoraRTC from 'agora-rtc-sdk';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import router from "next/router";
-import IAudioTrack from "agora-rtc-sdk-ng"; // Import the missing IAudioTrack type
+//import IAudioTrack from "agora-rtc-sdk-ng"; // Import the missing IAudioTrack type
+
+//import {MicrophoneAudioTrack,} from 'agora-rtc-sdk';
+import { channel } from "diagnostics_channel";
 
 type TCreateRoomResponse = {
     room: Room;
@@ -110,8 +117,9 @@ export default function Home() {
         const [isVideoEnabled, setIsVideoEnabled] = useState(true);
         const [isMicEnabled, setIsMicEnabled] = useState(true);
       // Add the microphoneTrackRef here
-        const cameraTrackRef = useRef<ICameraVideoTrack | null>(null); // This is the initialization
-        const microphoneTrackRef = useRef<typeof IAudioTrack | null>(null);
+      type AudioTrackType = typeof AgoraRTC.createMicrophoneAudioTrack extends () => Promise<infer T> ? T : never;
+      const microphoneTrackRef = useRef<AudioTrackType | null>(null);
+      const cameraTrackRef = useRef<ICameraVideoTrack | null>(null);
         const microphoneTrack = useRef<typeof IAudioTrack>(); 
         const [showNext, setShowNext] = useState(false);
         const [showMainMenu, setShowMainMenu] = useState(false);
@@ -133,6 +141,7 @@ export default function Home() {
         partnerLanguagePreference: '',
         partnerPreferenceOption: '',
     });
+    
 
     const handleStopChatting = useCallback(async () => {
       if (room) {
@@ -309,31 +318,32 @@ async function connectToAgoraRtc(roomId, userId, token, setMyVideo, setThemVideo
     });
   
     await client.join(
-        process.env.NEXT_PUBLIC_AGORA_APP_ID!,
-        roomId,
-        token,
-        userId
+      process.env.NEXT_PUBLIC_AGORA_APP_ID!,
+      roomId,
+      token,
+      userId
     );
-  
+    
+    
     
     const [microphoneTrack, cameraTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
-    microphoneTrackRef.current = microphoneTrack; // Store the microphone track
+    microphoneTrackRef.current = microphoneTrack as any; // Store the microphone track
     cameraTrackRef.current = cameraTrack; // Store the camera track
     setMyVideo(cameraTrack);
-  
+    
     await client.publish([microphoneTrack, cameraTrack]);
   
     client.on("user-published", async (user, mediaType) => {
-        await client.subscribe(user, mediaType);
-        if (mediaType === "video") {
-            setThemVideo(user.videoTrack);
-            //NEW STUFF
-            setIsRemoteVideoEnabled(true);
-            //
-        }
-       else if (mediaType === "audio") {
-          // Play the remote audio track when available
-          user.audioTrack.play();
+      await client.subscribe(user, mediaType);
+      if (mediaType === "video") {
+        setThemVideo(user.videoTrack);
+        //NEW STUFF
+        setIsRemoteVideoEnabled(true);
+        //
+      }
+       else if (mediaType === "audio" && user.audioTrack) {
+        // Play the remote audio track when available
+        user.audioTrack.play();
       }
 
       //NEW STUFF
@@ -368,11 +378,11 @@ async function connectToAgoraRtc(roomId, userId, token, setMyVideo, setThemVideo
     }
   };
   
-  const toggleMicrophone = async () => {
-    if (microphoneTrack) {
-      await microphoneTrackRef.current?.setEnabled(!isMicEnabled);
-      setIsMicEnabled(!isMicEnabled);
-    }
+   const toggleMicrophone = async () => {
+  if (microphoneTrackRef.current) {
+    await microphoneTrackRef.current.setEnabled(!isMicEnabled);
+    setIsMicEnabled(!isMicEnabled);
+  }
 };
 
   
@@ -390,16 +400,20 @@ const toggleVideo = async () => {
   
     setIsVideoEnabled((isEnabled) => {
       if (isEnabled) {
-        cameraTrackRef.current.stop(); // Stops the camera track
-        rtcClientRef.current.unpublish(cameraTrackRef.current); // Unpublish the video track
-        setLocalVideoTrack(null); // Remove the video track from the state
+        if (cameraTrackRef.current && rtcClientRef.current) {
+          cameraTrackRef.current.stop(); // Stops the camera track
+          rtcClientRef.current.unpublish(cameraTrackRef.current); // Unpublish the video track
+          setLocalVideoTrack(null); // Remove the video track from the state
+        }
       } else {
         // Ensure the camera track is re-initialized if needed
         if (!cameraTrackRef.current) {
-          initializeCameraTrack(); // You need to implement this function to recreate the camera track
+          // initializeCameraTrack(); // You need to implement this function to recreate the camera track
         } else {
           cameraTrackRef.current.play('my-video-container'); // Plays the camera track on a specific div
-          rtcClientRef.current.publish(cameraTrackRef.current); // Publish the video track
+          if (rtcClientRef.current) {
+            rtcClientRef.current.publish(cameraTrackRef.current); // Publish the video track
+          }
           setLocalVideoTrack(cameraTrackRef.current); // Update the state with the new video track
         }
       }
@@ -568,7 +582,7 @@ const toggleVideo = async () => {
     const handleLeaveRoom = async () => {
         // Example API call to update room status
         try {
-            const response = await fetch(`/api/rooms/${roomId}`, {
+            const response = await fetch(`/api/rooms/${room}`, { // Replace 'roomId' with 'room'
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',
@@ -592,8 +606,8 @@ const toggleVideo = async () => {
             });
             
             // Assuming 'channel' is a global variable or accessible in this scope
-            if (RtmChannel) {
-                sendMessage(RtmChannel, systemMessage);
+            if (channelRef) {
+                sendMessage(channelRef, systemMessage);
             } else {
                 console.error("Channel is not accessible or not defined.");
             }
@@ -653,15 +667,15 @@ const sendMessage = async (channel, message) => {
     
 
       
-    if (!session.user.id) {
-      console.error('User ID is undefined');
-      return; // Exit the function if userId is not available
-    }
-  
-    const userPreferencesToSend = {
-      practiceLanguage: userPreferences.practiceLanguage,
-      partnerLanguage: partnerLanguageArray,
-  };
+      if (!session || !session.user || !session.user.id) {
+        console.error('User ID is undefined');
+        return; // Exit the function if userId is not available
+      }
+    
+      const userPreferencesToSend = {
+        practiceLanguage: userPreferences.practiceLanguage,
+        partnerLanguage: partnerLanguageArray,
+    };
   
     const queryString = new URLSearchParams({
       practiceLanguage: userPreferences.practiceLanguage,
@@ -702,8 +716,11 @@ if (room) {
                     (message: TMessage) => setMessages((cur) => [...cur, message]),
                     rtmToken
                 );
+                
+
+
                 channelRef.current = channel;
-        
+
                 const { microphoneTrack, cameraTrack, client } = await connectToAgoraRtc(
                   roomId, 
                   userId, 
@@ -711,7 +728,7 @@ if (room) {
                   setMyVideo, 
                   setThemVideo
                 );
-                microphoneTrackRef.current = microphoneTrack;
+                microphoneTrackRef.current = microphoneTrack as IMicrophoneAudioTrack;
                 cameraTrackRef.current = cameraTrack;
                 setLocalVideoTrack(cameraTrack); // Update the local video track state
                 rtcClientRef.current = client;
