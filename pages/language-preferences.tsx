@@ -155,7 +155,7 @@ const handlePracticeLanguageChange = (e) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          fluentLanguage, 
+          fluentLanguages, 
           practiceLanguage,
           partnerLanguagePreference,
           partnerPreferenceOption }),
