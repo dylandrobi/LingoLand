@@ -346,37 +346,3 @@ const handlePracticeLanguageChange = (e) => {
 );
 };
 export default LanguagePreferences;
-
-//NEW RETURN ABOVE
-
-//OLD RETURN BELOW
-
-//   return (
-//     <div>
-//       <h1>Language Preferences</h1>
-//       <div>
-//         <h2>My Fluent Language:</h2>
-//         {/* Fluent Language Buttons */}
-//         <button disabled={practiceLanguage === 'English'} onClick={() => setFluentLanguage('English')}>English</button>
-//         <button disabled={practiceLanguage === 'Spanish'} onClick={() => setFluentLanguage('Spanish')}>Spanish</button>
-//       </div>
-//       <div>
-//         <h2>Language I Want to Practice:</h2>
-//         {/* Practice Language Buttons */}
-//         <button disabled={fluentLanguage === 'English'} onClick={() => setPracticeLanguage('English')}>English</button>
-//         <button disabled={fluentLanguage === 'Spanish'} onClick={() => setPracticeLanguage('Spanish')}>Spanish</button>
-//       </div>
-//       <div>
-//         <button onClick={handleSavePreferences} disabled={!fluentLanguage || !practiceLanguage || fluentLanguage === practiceLanguage}>
-//           Save Preferences
-//         </button>
-//         <button onClick={() => window.history.back()}>Back</button>
-//       </div>
-//     </div>
-//   );
-// };
-
-//OLD RETURN ^^^
-
-
-      

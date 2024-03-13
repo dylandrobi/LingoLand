@@ -16,24 +16,3 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
-
-// const HomePage: React.FC = () => {
-//   const { data: session } = useSession();
-
-//   return (
-//     <div>
-//       {!session ? (
-//         <button onClick={() => signIn('google')}>Sign in with Google</button>
-//       ) : (
-//         <div>
-//         <p>Welcome, {session.user.email}</p>
-//         <Link href="/chat">
-//           <button>Go to Chat</button>
-//         </Link>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default HomePage;
