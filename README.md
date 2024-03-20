@@ -1,3 +1,53 @@
+An engaging, real-time communication tool where users could practice languages with native speakers worldwide, enriching their linguistic skills and cultural understanding.
+Users get matched with eachother based on their own fluent languages and their desired language that they want to practice!
+Ex:
+User 1 is fluent in English and Chinese, and they want to practice Spanish
+User 2 is fluent in Spanish and wants to practice English.
+--> User 1 and User 2 would be matched
+
+
+*Notes: 
+- This project is in its Beta stage. Only English, Spanish, and Chinese are language options, but the plan is to expand this list greatly.
+- In its current version, this web app is designed to be used for people who have some experience in the language they plan to practice.
+
+
+How to use:
+After forking project...
+
+npm install -D tailwindcss postcss autoprefixer
+npm install mongodb@4.1
+npm i agora-rtm-sdk
+npm install next-auth mongoose
+
+
+create .env file and fill in these fields:
+
+MONGODB_URI=
+NEXT_PUBLIC_AGORA_APP_ID=
+AGORA_APP_CERT=
+
+
+GOOGLE_ID=
+GOOGLE_CLIENT_SECRET=
+
+
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL_INTERNAL=http://localhost:3000
+NEXTAUTH_SECRET=
+
+
+Credits:
+I would like to give credit to Cody Seibert, a YouTuber who ​​built an online video/text chat room using Next, Mongo, and Agora, and then created a YouTube video/course walking through the process. 
+https://github.com/codyseibert/omegle-clone
+https://www.youtube.com/watch?v=nfWs9v5cEb0
+Following along through this video, I was able to incorporate his code into my project for the Agora chatting mechanism and Mongo data storage elements. It allowed me to easily integrate the Video chatting and Text chatting!
+
+I would also like to give credit to JavaScript Mastery, another YouTuber who made a video called  “Next.js 14 Full Course 2024 | Build and Deploy a Full Stack App Using the Official React Framework”
+https://github.com/adrianhajdin/project_next_14_ai_prompt_sharing
+https://www.youtube.com/watch?v=wm5gMKuwSYk
+This was another course that I followed along and took bits and pieces for my own project, specifically the Google Login and Authentication as well as better understanding the relationship between front end interfaces and back end database storage in MongoDB.
+
+
 DESCRIPTION
 ADD SCREENSHOT
 GIVE CREDITS TO LAST PROJECTS
