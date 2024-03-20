@@ -10,7 +10,7 @@ User 2 is fluent in Spanish and wants to practice English.
 - This project is in its Beta stage. Only English, Spanish, and Chinese are language options, but the plan is to expand this list greatly.
 - In its current version, this web app is designed to be used for people who have some experience in the language they plan to practice.
 
-
+________________________________________
 How to use:
 After forking project...
 
@@ -22,7 +22,7 @@ npm i agora-rtm-sdk
 
 npm install next-auth mongoose
 
-
+________________________________________
 
 create .env file and fill in these fields:
 
@@ -42,7 +42,7 @@ NEXTAUTH_URL_INTERNAL=http://localhost:3000
 
 NEXTAUTH_SECRET=
 
-
+__________________________________________
 
 Credits:
 I would like to give credit to Cody Seibert, a YouTuber who ​​built an online video/text chat room using Next, Mongo, and Agora, and then created a YouTube video/course walking through the process. 
