@@ -15,25 +15,33 @@ How to use:
 After forking project...
 
 npm install -D tailwindcss postcss autoprefixer
+
 npm install mongodb@4.1
+
 npm i agora-rtm-sdk
+
 npm install next-auth mongoose
+
 
 
 create .env file and fill in these fields:
 
 MONGODB_URI=
+
 NEXT_PUBLIC_AGORA_APP_ID=
+
 AGORA_APP_CERT=
 
-
 GOOGLE_ID=
+
 GOOGLE_CLIENT_SECRET=
 
-
 NEXTAUTH_URL=http://localhost:3000
+
 NEXTAUTH_URL_INTERNAL=http://localhost:3000
+
 NEXTAUTH_SECRET=
+
 
 
 Credits:
